@@ -3,11 +3,13 @@
 
 __all__ = ['read_npz']
 import numpy as np
+fft_factor = 10
 
 def fft_trans(X):
     """ Perform a FFT along time axis
     """
-    X_new = np.fft.fft(X, axis=0)
+    nf = X.shape[0]
+    X_new = np.fft.fft(X, axis=0)[:int(nf/fft_factor),:]
     return X_new.flatten()
 
 def read_npz(path):
@@ -18,6 +20,7 @@ def read_npz(path):
     terms = ['obs', 'syn']
     ret = {}
     ret['Nf'], ret['Ns'] = xfile['Vx_obs'].shape
+    ret['Nf'] = int(ret['Nf']/fft_factor)
     for term in terms:
         x = fft_trans(xfile['Vx_'+term])
         z = fft_trans(zfile['Vz_'+term])
