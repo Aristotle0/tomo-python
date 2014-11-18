@@ -25,7 +25,7 @@ def read_npz(path):
 
 
 if __name__ == '__main__':
-    Td = read_npz('../../../data/')
+    Td = read_npz('../../data/')
     print(Td['obs'].shape, Td['obs'].dtype)
 
 
