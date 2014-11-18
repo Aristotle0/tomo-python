@@ -1,6 +1,7 @@
 # Preconditions for test data Vx.npz and Vz.npz.
 # Their structure is (time, nsta)
 
+__all__ = ['read_npz']
 import numpy as np
 
 def fft_trans(X):
@@ -16,6 +17,7 @@ def read_npz(path):
     zfile = np.load(path + 'Vz.npz')
     terms = ['obs', 'syn']
     ret = {}
+    ret['Nf'], ret['Ns'] = xfile['Vx_obs'].shape
     for term in terms:
         x = fft_trans(xfile['Vx_'+term])
         z = fft_trans(zfile['Vz_'+term])
