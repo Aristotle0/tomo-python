@@ -12,7 +12,7 @@ def get_index(ks, kf, N, Ns, Nf, Ks, Kf):
     for f in range(kf-1, kf-1+Nf):
         for s in range(ks-1, ks-1+Ns-2*Ks):
             indx.append(f*Ns+s)
-    indx2 = [x+N/2 for x in indx]
+    indx2 = [x+int(N/2) for x in indx]
     return indx + indx2
 
 
@@ -47,13 +47,12 @@ def emsm(T, Ns, Nf, Nc, Ks, Kf):
     Its dimension is (M x M) with M = (Ns - 2Ks)*(Nf - 2Kf)*Nc
     """
     M = (Ns-2*Ks)*Nf*Nc
-    ret = np.zeros((M, M), dtype=np.complex)
     T_extend = extend_T(T, Ns, Nf, Nc, Kf)
-    C = np.concatenate((select_subarray(T, ks, kf, Ns, Nf, Ks, Kf)
-        for ks in range(1, 2*Ks+1) for kf in range(1, 2*Kf+1)), axis=1)
+    tmp = tuple(select_subarray(T_extend, ks, kf, Ns, Nf, Ks, Kf)
+        for ks in range(1, 2*Ks+1) for kf in range(1, 2*Kf+1))
+    C = np.concatenate(tmp, axis=1)
     C_H = C.conj().T
-    ret = np.outer(C, C_H)
-    return ret
+    return np.dot(C, C_H)
 
 
 if __name__ == '__main__':
@@ -76,7 +75,7 @@ if __name__ == '__main__':
     end = clock()
     print("Total cost time: %.4f s" % ((end-start)))
 
-    # np.save('x.npy', x)
+    np.save('y.npy', x)
 
     # from scipy.sparse.linalg import eigs
     # vals, vecs = eigs(x, k=10)
