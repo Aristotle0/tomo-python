@@ -67,12 +67,10 @@ if __name__ == '__main__':
     from time import clock
     M = (Ns-2*Ks)*Nf*Nc
     x = np.zeros((M, M), dtype=np.complex)
-    # T = extend_T(T, Ns, Nf, Nc, Kf)
     start = clock()
-    x = emsm(T, Ns, Nf, Nc, Ks, Kf)
-    # for j in range(5):
-    #     for i in range(5):
-    #         x += select_subarray(T, i+1, j+1, Ns, Nf, Ks, Kf)
+    # x = emsm(T, Ns, Nf, Nc, Ks, Kf)
+    T = extend_T(T, Ns, Nf, Nc, Kf)
+    x = select_subarray(T, 1, 1, Ns, Nf, Ks, Kf)
     end = clock()
     print("Total cost time: %.4f s" % ((end-start)))
 
