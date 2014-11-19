@@ -29,8 +29,7 @@ def select_subarray(T, ks, kf, Ns, Nf, Ks, Kf):
     """
     indx = get_index(ks, kf, T.size, Ns, Nf, Ks, Kf)
     T_sub = T[indx] / np.sqrt((2*Ks+1)*(2*Kf+1))
-    T_sub_H = T_sub.conj().T
-    return np.outer(T_sub, T_sub_H)
+    return np.outer(T_sub, T_sub.conj())
 
 def extend_T(T, Ns, Nf, Nc, Kf):
     """ Extend T and add the ficticius frequential bands
