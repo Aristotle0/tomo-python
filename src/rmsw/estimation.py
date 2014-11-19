@@ -68,13 +68,20 @@ if __name__ == '__main__':
     from time import clock
     M = (Ns-2*Ks)*Nf*Nc
     x = np.zeros((M, M), dtype=np.complex)
-    T = extend_T(T, Ns, Nf, Nc, Kf)
+    # T = extend_T(T, Ns, Nf, Nc, Kf)
     start = clock()
-    # x = emsm(T, Ns, Nf, 2, Ks, Kf)
-    for j in range(5):
-        for i in range(5):
-            x += select_subarray(T, i+1, j+1, Ns, Nf, Ks, Kf)
+    x = emsm(T, Ns, Nf, Nc, Ks, Kf)
+    # for j in range(5):
+    #     for i in range(5):
+    #         x += select_subarray(T, i+1, j+1, Ns, Nf, Ks, Kf)
     end = clock()
-    print("cost time: %.4f" % ((end-start)/25))
+    print("Total cost time: %.4f s" % ((end-start)))
 
+    np.save('x.npy', x)
+
+    # from scipy.sparse.linalg import eigs
+    # vals, vecs = eigs(x, k=10)
+    # import matplotlib.pyplot as plt
+    # plt.plot(np.abs(vals))
+    # plt.show()
 
