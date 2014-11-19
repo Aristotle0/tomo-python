@@ -49,7 +49,7 @@ def emsm(T, Ns, Nf, Nc, Ks, Kf):
     M = (Ns-2*Ks)*Nf*Nc
     T_extend = extend_T(T, Ns, Nf, Nc, Kf)
     tmp = tuple(select_subarray(T_extend, ks, kf, Ns, Nf, Ks, Kf)
-        for ks in range(1, 2*Ks+1) for kf in range(1, 2*Kf+1))
+        for ks in range(1, 2*Ks+2) for kf in range(1, 2*Kf+2))
     C = np.concatenate(tmp, axis=1)
     C_H = C.conj().T
     return np.dot(C, C_H)
