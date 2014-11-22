@@ -5,8 +5,9 @@ Time Frequency Misfit Fuctions based on [Kristekova2006] and
 """
 
 import numpy as np
+from tomopy.signal import util
 
-def morletft(s, t, w0, dt):
+def morletft(s, t, w0, dt, nfft):
     """
     Fourier tranformed morlet function.
 
@@ -20,6 +21,8 @@ def morletft(s, t, w0, dt):
         Parameter for the wavelet, tradeoff between time and frequency
     dt : float
         Time step between two samples in st (in seconds)
+    nfft : int
+        number of sampling in frequency domain
 
     Returns
     -------
@@ -29,10 +32,10 @@ def morletft(s, t, w0, dt):
     p = 0.7511255444649425 # pi**(-0.25)
 
     s = s.reshape(-1, 1)
-    t = s.reshape(1, -1)
+    t = t.reshape(1, -1)
     psi = lambda t: p * np.exp(1j * w0 * t) * np.exp(-t ** 2 / 2.)
-    psih = psi(-1 * (t - t[-1] / 2.) / s).conj() / np.abs(s) ** .5
-    wavelet = np.fft.fft(psih, n=fft, axis=1)
+    psih = psi(-1 * (t - t[0, -1] / 2.) / s).conjugate() / np.abs(s) ** .5
+    wavelet = np.fft.fft(psih, n=nfft, axis=1)
     return wavelet
 
 
@@ -62,7 +65,7 @@ def cwt(st, dt, w0, fmin, fmax, nf=100, wl='morlet'):
     cwt : ndarray, complex
         Time frequency representation of st
     """
-    st = asarray(st)
+    st = np.asarray(st)
     npts = len(st) * 2
     tmax = (npts - 1) * dt
     t = np.linspace(0., tmax, npts)
@@ -70,11 +73,11 @@ def cwt(st, dt, w0, fmin, fmax, nf=100, wl='morlet'):
     scale = lambda f: w0 / (2 * np.pi * f)
     s = scale(f)
 
-    nfft = util.newpow2(npts)*2
+    nfft = util.nextpow2(npts)*2
     sf = np.fft.fft(st, n=nfft)
 
     if wl == 'morlet':
-        wft = morletft(s, t, w0, dt)
+        wft = morletft(s, t, w0, dt, nfft)
     else:
         raise ValueError('wavelet type "' + wl + '" not defined.')
 

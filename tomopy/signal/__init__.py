@@ -1,6 +1,6 @@
-from .signal import *
+from .tf_misfit import *
 
-__all__ = [s for s in dir() if not s.startwith('_')]
+__all__ = [s for s in dir() if not s.startswith('_')]
 
 import pytest
 pytest.main()

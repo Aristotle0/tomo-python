@@ -1,5 +1,5 @@
 from tomopy.signal import tf_misfit
-from numpy.testing import assert_array_almost_equal_nulp
+from numpy.testing import assert_array_almost_equal_nulp, assert_allclose
 class TestTf():
     def test_cwt(self):
         import numpy as np
@@ -14,6 +14,7 @@ class TestTf():
         f_min = 1
         f_max = 50
         
-        cwt_obspy = cwt(tr.data, dt, 8, f_min, f_max)
         cwt_local = tf_misfit.cwt(tr.data, dt, 8, f_min, f_max) 
+        cwt_obspy = cwt(tr.data, dt, 8, f_min, f_max)
         assert_array_almost_equal_nulp(cwt_obspy, cwt_local)
+        #assert_allclose(cwt_obspy, cwt_local)
