@@ -7,32 +7,21 @@ from scipy.linalg import svd
 def freqcut(X, Nf):
     """ Cut data array along frequency axis
     """
-    Nt = X.shape[0]/2
+    Nt = X.shape[0]//2
     X_cut = np.concatenate((X[:Nf, :], X[Nt:Nt+Nf, :]), axis=0)
     return X_cut.flatten()
 
 def freqrecover(T, Ns, Nf, Nt):
     """ recover frequency axis to Nt
     """
-    T_new = T.reshape(Nf, Ns)
+    T_new = T.reshape(Nf*2, Ns)
     X = np.zeros((Nt*2, Ns), dtype=np.complex)
-    X[:Nf, :] = T[:Nf, :]
-    X[Nt:Nf+Nt, :] = T[Nf:, :]
+    X[:Nf, :] = T_new[:Nf, :]
+    X[Nt:Nf+Nt, :] = T_new[Nf:, :]
     return X
 
-def get_index(ks, kf, N, Ns, Nf, Ks, Kf):
-    """ Get the index of subarray
-
-    N is the size of array T
-    """
-    indx = []
-    for f in range(kf-1, kf-1+Nf):
-        for s in range(ks-1, ks-1+Ns-2*Ks):
-            indx.append(f*Ns+s)
-    indx2 = [x+int(N/2) for x in indx]
-    return indx + indx2
-
-def select_subarray(T, ks, kf, Ns, Nf, Ks, Kf):
+@profile
+def select_subarray(T, ks, kf, Ns, Nf, Nc, Ks, Kf):
     """ Select a subarray from the array T
 
     T: [X_1(f_1), X_2(f_1), ... X_Ns(f_1),
@@ -43,9 +32,32 @@ def select_subarray(T, ks, kf, Ns, Nf, Ks, Kf):
         Z_1(f_1), ...
         ...]
     """
-    indx = get_index(ks, kf, T.size, Ns, Nf, Ks, Kf)
-    T_sub = T[indx] / np.sqrt((2*Ks+1)*(2*Kf+1))
-    return T_sub.reshape(-1, 1)
+
+    N = T.shape[0]//2
+    # spatial smoothing
+    # indx1 = []
+    # for f in range(Nf):
+    #     for s in range(ks-1, ks-1+Ns-2*Ks):
+    #         indx1.append(f*Ns+s)
+    indx1 = [f*Ns+s for f in range(Nf) for s in range(ks-1, ks-1+Ns-2*Ks)]
+    indx2 = [x+int(N//2) for x in indx1]
+    indx = indx1 + indx2
+    mask = np.zeros_like(T, dtype=bool)
+    mask[indx] = True
+    T_ss = np.where(mask, T, 0.)
+
+    # frequential smoothing
+    T_extend = extend_T(T_ss, Ns, Nf, Nc, Kf)
+    # indx1 = []
+    # for f in range(kf-1, kf-1+Nf):
+    #     for s in range(Ns):
+    #         indx1.append(f*Ns+s)
+    indx1 = [f*Ns+s for f in range(kf-1, kf-1+Nf) for s in range(Ns)]
+    indx2 = [x+N for x in indx1]
+    indx = indx1 + indx2
+    T_fs = T_extend[indx]
+
+    return T_fs.reshape(-1, 1)
 
 def extend_T(T, Ns, Nf, Nc, Kf):
     """ Extend T and add the ficticius frequential bands
@@ -60,32 +72,40 @@ def obs_mat(T, Ns, Nf, Nc, Ks, Kf):
     """ Get the observation matrix of size (M x K)
     """
     M = (Ns-2*Ks)*Nf*Nc
-    T_extend = extend_T(T, Ns, Nf, Nc, Kf)
-    print(T_extend.shape)
-    tmp = tuple(select_subarray(T_extend, ks, kf, Ns, Nf, Ks, Kf)
+    #T_extend = extend_T(T, Ns, Nf, Nc, Kf)
+    tmp = tuple(select_subarray(T, ks, kf, Ns, Nf, Nc, Ks, Kf)
         for ks in range(1, 2*Ks+2) for kf in range(1, 2*Kf+2))
     C = np.concatenate(tmp, axis=1)
     return C
 
+@profile
 def eig(C):
     """ Eigenvalues and Eigenvectors for C^H*C, and sort the eigenvalues
     from the biggest to the smallest.
     """
     tmp = np.dot(C.conj().T, C)
     s, v, d = svd(tmp)
-    vals = np.sqrt(v)
-    vecs = np.dot(C, np.dot(vals, v))
-    return vals, vecs
+    # vecs = np.zeros_like(C, dtype=np.complex)
+    print(s.shape, v.shape)
+    vecs = np.dot(C, s/v)
+    # for i in range(C.shape[1]):
+        # vecs[:, i] = np.dot(C, s[:, i])/v[i]
+    return vecs
 
 def projection(T, vecs, start, end):
     """ Return the projection of T onto the given subspace
     """
-    print(T.shape, vecs.shape)
-    x = np.linalg.lstsq(T.reshape(-1, 1), vecs)
-    proj = np.dot(T, x)
-    T_proj_accept = np.sum(proj[:, start:end], axis=1)
+
+    T = T.reshape(-1,)
+    T_proj_accept = np.zeros_like(T, dtype=np.complex)
+    K = vecs.shape[1]
+    for k in range(start, end):
+        vec = vecs[:, k]
+        norm = np.sum(vec**2)
+        T_proj_accept += np.dot(T, vec) / norm * vec
     return T_proj_accept
 
+@profile
 def mc_wbsmf(X, Nc, Ks, Kf, Nf, start, end, rej=False):
     """ Multicomponent wideband spectral matrix filtering
     
@@ -105,7 +125,8 @@ def mc_wbsmf(X, Nc, Ks, Kf, Nf, start, end, rej=False):
     Nt = Nt / 2
     T = freqcut(X, Nf)
     C = obs_mat(T, Ns, Nf, Nc, Ks, Kf)
-    vals, vecs = eig(C)
+    vecs = eig(C)
+    print(vecs.shape)
     T_accept = projection(T, vecs, start, end)
     X_accept = freqrecover(T_accept, Ns, Nf, Nt)
     if rej == True:
@@ -120,16 +141,16 @@ if __name__ == '__main__':
     Td = npz.read_npz('../../data/')
     T = Td['syn']
     Ks = 72; Kf = 3; Nf = 400; Nc = 2
-    start = 0; end = 10
+    start1 = 0; end1 = 10
     from time import clock
     start = clock()
-    x_accept = mc_wbsmf(T, Nc, Ks, Kf, Nf, start, end)
+    x_accept = mc_wbsmf(T, Nc, Ks, Kf, Nf, start1, end1)
     # T = extend_T(T, Ns, Nf, Nc, Kf)
     # x = select_subarray(T, 1, 1, Ns, Nf, Ks, Kf)
     # x = np.dot(x, x.conj().T)
     end = clock()
     print("Total cost time: %.4f s" % ((end-start)))
-
+    print(x_accept.shape)
     np.save('x.npy', x_accept)
 
     # from scipy.sparse.linalg import eigs
