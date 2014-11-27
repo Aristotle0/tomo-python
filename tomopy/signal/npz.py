@@ -18,15 +18,24 @@ def read_npz(path):
     terms = ['obs', 'syn']
     ret = {}
     for term in terms:
-        x = fft_trans(xfile['Vx_'+term])
-        z = fft_trans(zfile['Vz_'+term])
+        #x = fft_trans(xfile['Vx_'+term])
+        #z = fft_trans(zfile['Vz_'+term])
+        x = xfile['Vx_'+term]
+        z = zfile['Vz_'+term]
         tmp_co = np.concatenate((x, z))
         ret[term] = tmp_co
     return ret
 
 
 if __name__ == '__main__':
-    Td = read_npz('../../data/')
-    print(Td['obs'].shape, Td['obs'].dtype)
+    Td = read_npz('../../data/')['obs']
+    print(Td.shape, Td.dtype)
+    import matplotlib.pyplot as plt
+    Tmax = np.amax(Td)
+    nt, ns = Td.shape
+    np.save('T_raw.npy', Td[:nt//2, :])
+    for i in range(ns):
+        plt.plot(Td[:nt//2, i]/Tmax*5+i, 'r')
+    plt.show()
 
 

@@ -37,19 +37,28 @@ class TestMcwbsmf():
         T_proj = separation.projection(T, vecs, start, end)
         assert T_proj[0] == 1
 
-    def test_mc_wbsmf(self):
-        pass
-        Td = read_npz('data/')
-        T = Td['syn']
-        Ks = 72; Kf = 3; Nf = 400; Nc = 2
-        start1 = 0; end1 = 10
-        from time import clock
-        start = clock()
-        x_accept = separation.mc_wbsmf(T, Nc, Ks, Kf, Nf, start1, end1)
-        # T = extend_T(T, Ns, Nf, Nc, Kf)
-        # x = select_subarray(T, 1, 1, Ns, Nf, Ks, Kf)
-        # x = np.dot(x, x.conj().T)
-        end = clock()
-        print("Total cost time: %.4f s" % ((end-start)))
-        print(x_accept.shape)
-        assert x.accept.shape == T.shape
+    # def test_mc_wbsmf(self):
+    #     Td = read_npz('data/')
+    #     T = Td['syn']
+    #     Ks = 72; Kf = 3; Nf = 400; Nc = 2
+    #     start1 = 0; end1 = 10
+    #     from time import clock
+    #     start = clock()
+    #     x_accept = separation.mc_wbsmf(T, Nc, Ks, Kf, Nf, start1, end1)
+    #     end = clock()
+    #     print("Total cost time: %.4f s" % ((end-start)))
+    #     print(x_accept.shape)
+    #     assert x.accept.shape == T.shape
+
+    def test_mc_wbsmf_plot(self):
+        s = np.load('tomopy/signal/x.npy')
+        nt, ns = s.shape
+        nt = nt // 2
+        sx = s[:nt, :]
+        sxt = np.fft.ifft(sx, axis=0)
+        xmax = np.amax(sxt)
+        import matplotlib.pyplot as plt
+        for i in range(ns):
+            plt.plot(sxt[:, i]/xmax/5 + i, 'r')
+        plt.show()
+        assert 1
