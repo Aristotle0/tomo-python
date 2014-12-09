@@ -1,4 +1,5 @@
 # data files
+data/
 *.npz
 *.npy
 # line-profiler

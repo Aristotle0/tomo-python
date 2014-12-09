@@ -40,7 +40,7 @@ def freqrecover(T, Nc, Ns, Nf, Nt):
     X[Nc*Nt-Nf:Nc*Nt, :] = fz[::-1, :].conj()
     return X
 
-@profile
+#@profile
 def select_subarray(T, ks, kf, Ns, Nf, Nc, Ks, Kf):
     """ Select a subarray from the array T
 
@@ -104,7 +104,7 @@ def obs_mat(T, Ns, Nf, Nc, Ks, Kf):
     C = np.concatenate(tmp, axis=1)
     return C
 
-@profile
+#@profile
 def evd(C):
     """ Eigenvalues and Eigenvectors for C^H*C, and sort the eigenvalues
     from the biggest to the smallest.
@@ -164,7 +164,7 @@ def inverse_norm(X, nm):
     return X
 
 
-@profile
+#@profile
 def mc_wbsmf(X, Nc, Ks, Kf, Nf, start, end, rej=False):
     """ Multicomponent wideband spectral matrix filtering
     
@@ -202,7 +202,7 @@ if __name__ == '__main__':
     import npz
     Td = npz.read_npz('../../data/')
     T = Td['obs']
-    Ks = 60; Kf = 3; Nf = 400; Nc = 2
+    Ks = 74; Kf = 3; Nf = 400; Nc = 2
     start1 = 0; end1 = (2*Ks+1)*(2*Kf+1)
     from time import clock
     start = clock()
