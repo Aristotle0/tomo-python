@@ -1,24 +1,20 @@
 #!/usr/bin/env python
 from tomopy.local.param import Fd2dParam, get_numpt, get_sta_coord
 from tomopy.local.ioseism import read_seism
-from tomopy.local.user_exception import IllegalArgumentError
+from tomopy.local.status import get_gnsrc
+from tomopy.local.utility import read_option
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2 or len(sys.argv) > 5:
-        raise IllegalArgumentError("number of arguments doesn't match.")
-    else:
-        option = sys.argv[1:]
-        option_rdash = [s[2:] for s in option]
-        option_dict = {}
-        for opn in option_rdash:
-            if opn == 'help':
-                print("""
+
+    help_string = """
 This program plots a gather of seismograms.
-No. of source, directory and component need to be specified.
+Directory and component need to be specified.
+The source can be specified, and will be set corresponding to
+iteration if not. 
 
 --help              help information
 --src=12            specify source number
@@ -28,13 +24,10 @@ No. of source, directory and component need to be specified.
 
 for instance:
 plot_gather --src=200 --dir=syn_seism --comp=x
-                    """)
-                sys.exit()
-            else:
-                k, v = opn.split('=')
-                option_dict[k] = v
+"""
+    option_dict = read_option(sys, help_string, 2, 5)
 
-    nsrc = int(option_dict['src'])
+    nsrc = int(option_dict.setdefault('src', get_gnsrc(working_path)))
     pnm_seism = option_dict['dir']
     comp = option_dict['comp']
     working_path = option_dict.setdefault('path', '.')

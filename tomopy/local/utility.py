@@ -1,45 +1,17 @@
-from netCDF4 import Dataset
-import numpy as np
+from tomopy.local.user_exception import IllegalArgumentError
 
-def associate_blocks(path, fname, vname, nsrc, dim1, dim2, nfd=0):
-    """ associate all MPI blocks in one array
-
-    Parameter
-    ---------
-    path : string
-        path of the directory which keeps the target files
-    fname : string
-        target file name
-    vname : string
-        target variable name
-    nsrc : int
-        No. of source
-    dim1 : int
-        number of blocks in x direction
-    dim2 : int
-        number of blocks in z direction
-    nfd : int
-        =0 if no FD layers, =3 if num of FD layers is set 3
-
-    Return
-    ------
-    xzblocks : ndarray
-        array after associating
-    """
-    for n_i in range(dim1):
-        for n_k in range(dim2):
-            fnm = ("%s/%s_s%03i_mpi%02i%02i" %
-                (path, fname, nsrc, n_i, n_k))
-            fnc = Dataset(fnm, 'r')
-            block = fnc.variables[vname][:, :]
-            block = block[nfd:block.shape[0]-nfd, nfd:block.shape[1]-nfd]
-            fnc.close()
-            if n_k == 0:
-                zblocks = block
+def read_option(sys, help_string, nmin, nmax):
+    if (len(sys.argv) < nmin or len(sys.argv) > nmax):
+        raise IllegalArgumentError("number of arguments doesn't match.")
+    else:
+        option = sys.argv[1:]
+        option_rdash = [s[2:] for s in option]
+        option_dict = {}
+        for opn in option_rdash:
+            if opn == 'help':
+                print(help_string)
+                sys.exit()
             else:
-                zblocks = np.concatenate((zblocks, block), axis=0)
-        if n_i == 0:
-            xzblocks = zblocks
-        else:
-            xzblocks = np.concatenate((xzblocks, zblocks), axis=1)
-    return xzblocks
+                k, v = opn.split('=')
+                option_dict[k] = v
+    return option_dict

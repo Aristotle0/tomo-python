@@ -1,20 +1,13 @@
 #!/usr/bin/env python
 from tomopy.local.filterseism import seism_filter
 from tomopy.local.status import get_gnsrc
-from tomopy.local.user_exception import IllegalArgumentError
+from tomopy.local.utility import read_option
 import sys
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 3:
-        raise IllegalArgumentError("number of arguments doesn't match.")
-    else:
-        option = sys.argv[1:]
-        option_rdash = [s[2:] for s in option]
-        option_dict = {}
-        for opn in option_rdash:
-            if opn == 'help':
-                print("""
+
+    help_string = """
 This program perform a filter to waveform.
 The source can be specified, and will be set corresponding to
 iteration if not. A working path can be specified.
@@ -26,14 +19,11 @@ iteration if not. A working path can be specified.
 for instance:
 filter
 filter --src=200
-                    """)
-                sys.exit()
-            else:
-                k, v = opn.split('=')
-                option_dict[k] = v
+"""
+    option_dict = read_option(sys, help_string, 1, 3)
 
     working_path = option_dict.setdefault('path', '.')
-    gnsrc = option_dict.setdefault('src', get_gnsrc(working_path))
+    gnsrc = int(option_dict.setdefault('src', get_gnsrc(working_path)))
 
 
     seism_filter(gnsrc, working_path)
