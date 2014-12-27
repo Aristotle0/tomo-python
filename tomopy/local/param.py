@@ -1,3 +1,5 @@
+from netCDF4 import Dataset
+
 class Fd2dParam():
     def __init__(self, folder):
         fnm = _contpath(folder, 'SeisFD2D.conf')
@@ -52,4 +54,47 @@ def _contpath(folder, fname):
         return folder+'/'+fname
 
 
+def get_numpt(gnsrc, n_i, n_k, folder='.'):
+    """ Get number of receivers in one block
+
+    Parameter
+    ---------
+    gnsrc : int
+        No. of the seismic source
+    n_i, n_k : int
+        Id of the MPI block
+
+    Return
+    ------
+    num_pt : int
+        Number of receivers in one block
+    """
+    str1 = (folder, gnsrc, n_i, n_k)
+    filenm = '%s/input/station_s%03i_mpi%02i%02i.nc' % str1
+    fnc = Dataset(filenm, 'r')
+    num_pt = len(fnc.dimensions['num_pt'])
+    fnc.close()
+    return num_pt
+
+
+def get_sta_coord(gnsrc, n_i, n_k, folder='.'):
+    """ Get the location of receivers in x direction.
+
+    Parameter
+    ---------
+    gnsrc : int
+        No. of the seismic source
+    n_i, n_k : int
+        Id of the MPI block
+
+    Return
+    ------
+    coordx : ndarray
+        x coordinates of receivers (km)
+    """
+    str1 = (folder, gnsrc, n_i, n_k)
+    filenm = '%s/input/station_s%03i_mpi%02i%02i.nc' % str1
+    fnc = Dataset(filenm, 'r')
+    coordx = fnc.variables['coord'][:, 0]/1.e3
+    return coordx
 
