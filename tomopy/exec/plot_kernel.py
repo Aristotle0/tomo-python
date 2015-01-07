@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 from tomopy.local.param import Fd2dParam
 from tomopy.local.param import associate_blocks
-from tomopy.local.utility import read_option
-from tomopy.local.status import get_gnsrc
+from tomopy.local.utility import read_option, get_gnsrc
 import numpy as np
 import matplotlib.pyplot as plt
 import sys

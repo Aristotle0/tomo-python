@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 from tomopy.local.param import Fd2dParam, get_numpt, get_sta_coord
 from tomopy.local.ioseism import read_seism
-from tomopy.local.status import get_gnsrc
-from tomopy.local.utility import read_option
+from tomopy.local.utility import read_option, get_gnsrc
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from tomopy.local.filterseism import seism_filter
-from tomopy.local.status import get_gnsrc
-from tomopy.local.utility import read_option
+from tomopy.local.utility import read_option, get_gnsrc
 import sys
 
 
