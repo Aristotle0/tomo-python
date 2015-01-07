@@ -1,3 +1,3 @@
 __all__ = ['signal', 'local']
-import pytest
-pytest.main()
+# import pytest
+# pytest.main()

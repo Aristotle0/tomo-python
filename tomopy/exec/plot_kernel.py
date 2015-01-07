@@ -3,7 +3,6 @@ from tomopy.local.param import Fd2dParam
 from tomopy.local.param import associate_blocks
 from tomopy.local.utility import read_option
 from tomopy.local.status import get_gnsrc
-from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -44,14 +43,15 @@ plot_kernel --src=200 --path=data --display=ka --dx=0.025 --cut=0.1
 
     path = working_path +'/' + 'kernel'
     ker = {}
-    ker[ker_comp] = associate_blocks(path, 'kernel', ker_comp, nsrc, dim1, dim2)
+    ker[ker_comp] = associate_blocks(path, 'kernel', ker_comp, dim1, dim2, nsrc=nsrc)
 
     nz, nx = ker[ker_comp].shape
     gridx = np.arange(0., nx*dx, dx)
     gridz = np.arange(-nz*dz+dz, dz, dz)
     x, z = np.meshgrid(gridx, gridz)
 
-    fig = plt.figure(figsize=(12, 12.*nz/nx))
+    size_fig = 16
+    fig = plt.figure(figsize=(size_fig, size_fig*nz/nx))
     ax1 = fig.add_subplot(1, 1, 1)
     kv = ker[ker_comp]
     pc_min = kv.min()*cut
@@ -59,5 +59,5 @@ plot_kernel --src=200 --path=data --display=ka --dx=0.025 --cut=0.1
     img = ax1.pcolormesh(x, z, kv, vmin=pc_min, vmax=pc_max)
     ax1.set_xlim([gridx.min(), gridx.max()])
     ax1.set_ylim([gridz.min(), gridz.max()])
-    cb = plt.colorbar(img, format='%.1e', ticks=[pc_min, 0, pc_max])
+    cb = plt.colorbar(img, format='%.1e', ticks=[pc_min, (pc_min+pc_max)/2, pc_max])
     plt.show()

@@ -100,7 +100,7 @@ def get_sta_coord(gnsrc, n_i, n_k, folder='.'):
     return coordx
 
 
-def associate_blocks(path, fname, vname, nsrc, dim1, dim2, nfd=0):
+def associate_blocks(path, fname, vname, dim1, dim2, nsrc=None, nfd=0):
     """ associate all MPI blocks in one array
 
     Parameter
@@ -127,8 +127,12 @@ def associate_blocks(path, fname, vname, nsrc, dim1, dim2, nfd=0):
     """
     for n_i in range(dim1):
         for n_k in range(dim2):
-            fnm = ("%s/%s_s%03i_mpi%02i%02i.nc" %
-                (path, fname, nsrc, n_i, n_k))
+            if nsrc == None:
+                fnm = ("%s/%s_mpi%02i%02i.nc" %
+                    (path, fname, n_i, n_k))
+            else:
+                fnm = ("%s/%s_s%03i_mpi%02i%02i.nc" %
+                    (path, fname, nsrc, n_i, n_k))
             fnc = Dataset(fnm, 'r')
             block = fnc.variables[vname][:, :]
             block = block[nfd:block.shape[0]-nfd, nfd:block.shape[1]-nfd]
@@ -142,3 +146,4 @@ def associate_blocks(path, fname, vname, nsrc, dim1, dim2, nfd=0):
         else:
             xzblocks = np.concatenate((xzblocks, zblocks), axis=1)
     return xzblocks
+

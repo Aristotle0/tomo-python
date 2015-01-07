@@ -1,4 +1,3 @@
-"""
 from tomopy.signal import tf_misfit
 from numpy.testing import assert_array_almost_equal_nulp, assert_allclose
 class TestTf():
@@ -26,5 +25,3 @@ class TestTf():
         pl.plot(icwt)
         pl.show()
         assert_allclose(tr.data, icwt)
-
-"""

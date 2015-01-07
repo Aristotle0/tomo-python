@@ -18,9 +18,9 @@ iteration if not.
 
 --help              help information
 --src=12            specify source number
---dir=syn_seism     specify the directory that seismograms are saved
---path=data         default as the current directory
---comp=x            specify which compontent to display
+--dir=syn_seism     specify the directory that seismograms are saved, syn_seism by default
+--path=data         the current directory by default
+--comp=x            specify which compontent to display, x by default
 
 for instance:
 plot_gather --src=200 --dir=syn_seism --comp=x
@@ -28,8 +28,8 @@ plot_gather --src=200 --dir=syn_seism --comp=x
     option_dict = read_option(sys, help_string, 2, 5)
 
     nsrc = int(option_dict.setdefault('src', get_gnsrc(working_path)))
-    pnm_seism = option_dict['dir']
-    comp = option_dict['comp']
+    pnm_seism = option_dict.setdefault('dir', 'seism_syn')
+    comp = option_dict.setdefault('comp', 'x')
     working_path = option_dict.setdefault('path', '.')
 
     if comp == 'x':
@@ -37,25 +37,10 @@ plot_gather --src=200 --dir=syn_seism --comp=x
     elif comp == 'z':
         id_comp = 1
 
-    pnm_seism = working_path +'/'+ pnm_seism
     para = Fd2dParam(working_path)
     dim1, dim2 = para.dim
     nt = para.nt
-    stept = para.stept
-    seism_gather = []
-    coord_gather = []
-    for ni in range(dim1):
-        nk = dim2 - 1
-        num_pt = get_numpt(nsrc, ni, nk, working_path)
-        if (num_pt > 0):
-            seism, time = read_seism(pnm_seism, nsrc, ni, nk, nt, num_pt)
-            # print('seism_shape: ', seism.shape)
-            coordx_sta = get_sta_coord(nsrc, ni, nk, working_path)
-            for nsta in range(num_pt):
-                seism_gather.append(seism[id_comp, :, nsta])
-                coord_gather.append(coordx_sta[nsta])
-    seism_gather = np.array(seism_gather)
-    coord_gather = np.array(coord_gather)
+    seism_gather, coord_gather = gather_seism(working_path, pnm_seism, dim1, dim2, nsrc, nt)
 
     smax = np.amax(np.abs(seism_gather))
     fig = plt.figure(figsize=(12, 8))

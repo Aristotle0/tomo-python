@@ -1,10 +1,12 @@
 # Copied from https://github.com/Unidata/pyCWT
-# Modified in the place that I have marked.
+# modifided: 
+#   make class Wavelet visable outside
+#   change return type of function icwt
 
 import numpy as np
 from scipy.fftpack import fft, ifft, fftshift
 
-__all__ = ['cwt', 'ccwt', 'icwt', 'SDG', 'Morlet']
+__all__ = ['cwt', 'ccwt', 'icwt', 'SDG', 'Morlet', 'Wavelet']
 
 class MotherWavelet(object):
     """Class for MotherWavelets.
@@ -701,6 +703,7 @@ def icwt(wavelet):
         dx = 1. / wavelet.motherwavelet.sampf, axis=0)
 
 
-    return x[0:wavelet.motherwavelet.len_signal].astype(wavelet._signal_dtype)
+    # return x[0:wavelet.motherwavelet.len_signal].astype(wavelet._signal_dtype)
+    return x[0:wavelet.motherwavelet.len_signal]
 
  

@@ -1,5 +1,19 @@
-# RMSW
-Veocity filters for geophysical data to remove ground roll(surface wave).
+# Addtional Python tools for tomo7
+This package written in Python is used for tomo7, whose functionals as:
+
+* Plot
+    * Plot waveform of a single record or waveforms of a gather.
+    * Plot Vp, Vs and density model
+    * Plot Frechet Kernel
+* Filter
+	* Perform a filter onto waveform, including low-pass, high-pass, band-pass
+* Misfit
+	* L2 waveform difference misfit
+	* Time-frequency misfit with CWT (continuous wavelet transform)
+* Upsampling
+* Remove ground roll (Waiting)
+
+
 
 
 ## References
