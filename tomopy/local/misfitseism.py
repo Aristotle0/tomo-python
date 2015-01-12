@@ -2,7 +2,8 @@ from ..signal.misfit_functionals import wavemisf, waveletmisf
 from .param import Fd2dParam, get_numpt
 from .ioseism import read_seism
 import numpy as np
-from netCDF4 import Dataset
+# from netCDF4 import Dataset
+from scipy.io import netcdf
 
 
 def write_misf(misf, adjs, folder, gnsrc, n_i, n_k, nt, num_pt, nd):
@@ -29,7 +30,7 @@ def write_misf(misf, adjs, folder, gnsrc, n_i, n_k, nt, num_pt, nd):
     """
     str1 = (folder, gnsrc, n_i, n_k)
     filenm = '%s/misf_s%03i_mpi%02i%02i.nc' % str1
-    fnc = Dataset(filenm, 'w', format='NETCDF3_CLASSIC')
+    fnc = netcdf.netcdf_file(filenm, 'w')#, format='NETCDF3_CLASSIC')
     fnc.createDimension('geo', 3)
     fnc.createDimension('num_pt', num_pt)
     fnc.createDimension('time', nt)
